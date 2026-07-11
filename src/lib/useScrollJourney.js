@@ -5,7 +5,7 @@ import { journey } from "./journeyStore";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function useScrollJourney(containerRef) {
+export default function useScrollJourney(containerRef, onSceneVisibilityChange) {
   useEffect(() => {
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
     journey.reducedMotion = mql.matches;
@@ -14,6 +14,7 @@ export default function useScrollJourney(containerRef) {
 
     if (!containerRef.current) return;
 
+    let sceneVisible = true;
     const st = ScrollTrigger.create({
       trigger: containerRef.current,
       start: "top top",
@@ -21,6 +22,11 @@ export default function useScrollJourney(containerRef) {
       scrub: 0.6,
       onUpdate: (self) => {
         journey.progress = self.progress;
+        const nextSceneVisible = self.progress < 0.9;
+        if (nextSceneVisible !== sceneVisible) {
+          sceneVisible = nextSceneVisible;
+          onSceneVisibilityChange?.(nextSceneVisible);
+        }
       },
     });
 
@@ -28,5 +34,5 @@ export default function useScrollJourney(containerRef) {
       st.kill();
       mql.removeEventListener?.("change", onChange);
     };
-  }, [containerRef]);
+  }, [containerRef, onSceneVisibilityChange]);
 }

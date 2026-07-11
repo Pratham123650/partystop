@@ -23,7 +23,7 @@ const PROFILE = [
 
 function useLatheGeometry() {
   return useMemo(() => {
-    const geo = new THREE.LatheGeometry(PROFILE, 48);
+    const geo = new THREE.LatheGeometry(PROFILE, 32);
     geo.computeVertexNormals();
     return geo;
   }, []);
@@ -38,8 +38,8 @@ function useLabelTexture(text) {
 
   if (!textureRef.current) {
     const c = canvasRef.current;
-    c.width = 1024;
-    c.height = 640;
+    c.width = 640;
+    c.height = 400;
     textureRef.current = new THREE.CanvasTexture(c);
     textureRef.current.colorSpace = THREE.SRGBColorSpace;
   }
@@ -62,34 +62,34 @@ function useLabelTexture(text) {
     ctx.fillStyle = "#1d4e89";
     const arrow = (x, dir) => {
       ctx.beginPath();
-      ctx.moveTo(x, 120);
-      ctx.lineTo(x + dir * 70, 160);
-      ctx.lineTo(x, 200);
+      ctx.moveTo(x, 76);
+      ctx.lineTo(x + dir * 44, 100);
+      ctx.lineTo(x, 124);
       ctx.closePath();
       ctx.fill();
     };
-    arrow(110, 1);
-    arrow(c.width - 110, -1);
+    arrow(70, 1);
+    arrow(c.width - 70, -1);
 
     // PARTY (blue)
     ctx.textAlign = "center";
     ctx.fillStyle = "#1d4e89";
-    ctx.font = "700 130px 'Space Grotesk', sans-serif";
-    ctx.fillText("PARTY", c.width / 2, 250);
+    ctx.font = "700 82px 'Space Grotesk', sans-serif";
+    ctx.fillText("PARTY", c.width / 2, 156);
 
     // STOP (red, bold)
     ctx.fillStyle = "#d62828";
-    ctx.font = "900 190px Arial, sans-serif";
-    ctx.fillText("STOP", c.width / 2, 440);
+    ctx.font = "900 118px Arial, sans-serif";
+    ctx.fillText("STOP", c.width / 2, 276);
 
     // small yellow rule
     ctx.fillStyle = "#f4b400";
-    ctx.fillRect(c.width / 2 - 160, 470, 320, 10);
+    ctx.fillRect(c.width / 2 - 100, 294, 200, 7);
 
     // dynamic sub-label (category text)
     ctx.fillStyle = "#201e1b";
-    ctx.font = "700 54px 'JetBrains Mono', monospace";
-    ctx.fillText(text.toUpperCase(), c.width / 2, 560);
+    ctx.font = "700 34px 'JetBrains Mono', monospace";
+    ctx.fillText(text.toUpperCase(), c.width / 2, 350);
 
     textureRef.current.needsUpdate = true;
   }, [text]);
@@ -202,25 +202,19 @@ export default function Bottle({ scale = 1 }) {
     <group ref={group}>
       <group position={[0, -1.6, 0]}>
         {/* Glass body */}
-        <mesh ref={bodyRef} geometry={geometry} castShadow receiveShadow>
-          <meshPhysicalMaterial
-            color={"#2f6b4f"}
-            transmission={0.88}
-            thickness={1.1}
-            roughness={0.08}
-            metalness={0}
-            ior={1.45}
-            clearcoat={0.6}
-            clearcoatRoughness={0.15}
-            attenuationColor={"#2f6b4f"}
-            attenuationDistance={1.2}
-            envMapIntensity={1.4}
+        <mesh ref={bodyRef} geometry={geometry}>
+          <meshStandardMaterial
+            color={"#3f8f63"}
+            roughness={0.34}
+            metalness={0.08}
+            transparent
+            opacity={0.82}
           />
         </mesh>
 
         {/* Label wrap */}
         <mesh position={[0, 1.05, 0]} rotation={[0, Math.PI * 0.15, 0]}>
-          <cylinderGeometry args={[0.585, 0.6, 1.05, 48, 1, true, 0, Math.PI * 1.35]} />
+          <cylinderGeometry args={[0.585, 0.6, 1.05, 32, 1, true, 0, Math.PI * 1.35]} />
           <meshStandardMaterial
             map={labelTexture}
             roughness={0.55}
@@ -231,11 +225,11 @@ export default function Bottle({ scale = 1 }) {
 
         {/* Cap */}
         <mesh ref={capRef} position={[0, 3.5, 0]}>
-          <cylinderGeometry args={[0.16, 0.19, 0.32, 24]} />
+          <cylinderGeometry args={[0.16, 0.19, 0.32, 16]} />
           <meshStandardMaterial color={"#1d4e89"} roughness={0.35} metalness={0.4} />
         </mesh>
         <mesh position={[0, 3.7, 0]}>
-          <sphereGeometry args={[0.05, 16, 16]} />
+          <sphereGeometry args={[0.05, 12, 12]} />
           <meshStandardMaterial color={"#f4b400"} roughness={0.3} metalness={0.5} />
         </mesh>
       </group>
