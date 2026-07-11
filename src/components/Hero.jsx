@@ -14,7 +14,7 @@ export default function Hero() {
         </motion.span>
 
         <motion.h1
-          className="hero-title behind-bottle"
+          className="hero-title front-bottle"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 2.0, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}

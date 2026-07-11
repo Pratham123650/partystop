@@ -100,10 +100,10 @@ export default function Scene3D({ className }) {
       <Canvas
         dpr={[0.85, 1.25]}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+        onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
         camera={{ position: [0, 0.4, 6.2], fov: 32 }}
         performance={{ min: 0.55 }}
       >
-        <color attach="background" args={[0, 0, 0, 0]} />
         <LightingRig />
 
         <Suspense fallback={null}>
