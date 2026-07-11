@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { AdaptiveDpr } from "@react-three/drei";
+import { AdaptiveDpr, ContactShadows } from "@react-three/drei";
 import Bottle from "./Bottle";
 
 function detectWebGL() {
@@ -44,17 +44,20 @@ export default function Scene3D({ active = true, className }) {
   return (
     <div className={className} aria-hidden="true">
       <Canvas
-        dpr={[0.85, 1.2]}
-        gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+        dpr={[1, 1.45]}
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 0.4, 6.2], fov: 32 }}
       >
         <color attach="background" args={[0, 0, 0, 0]} />
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[3, 5, 4]} intensity={1.2} color={"#fff3d6"} />
-        <directionalLight position={[-4, 2, -3]} intensity={0.35} color={"#2f6fc4"} />
+        <ambientLight intensity={0.55} />
+        <directionalLight position={[3, 5, 4]} intensity={1.6} color={"#fff3d6"} />
+        <directionalLight position={[-4, 2, -3]} intensity={0.5} color={"#2f6fc4"} />
+        <pointLight position={[0, -2, 3]} intensity={0.4} color={"#f4b400"} />
+        <pointLight position={[2, 3, -2]} intensity={0.5} color={"#ffffff"} />
 
         <Suspense fallback={null}>
           <Bottle />
+          <ContactShadows position={[0, -2.05, 0]} opacity={0.35} scale={6} blur={2.4} far={3} />
         </Suspense>
 
         <AdaptiveDpr pixelated={false} />

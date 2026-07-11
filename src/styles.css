@@ -202,7 +202,7 @@ button:focus-visible,
   opacity: 0.9;
 }
 
-.behind-bottle { position: relative; z-index: 1; display: inline-block; }
+.behind-bottle { position: relative; z-index: 10; display: inline-block; }
 .front-bottle { position: relative; z-index: 10; display: inline-block; }
 
 .journey { position: relative; background: var(--ps-cream); }
@@ -259,6 +259,14 @@ button:focus-visible,
 .hero-inner { max-width: 760px; }
 .hero-eyebrow { color: var(--ps-blue); margin-bottom: 18px; }
 .hero-title { font-size: clamp(3rem, 9vw, 6.4rem); color: var(--ps-ink); margin-bottom: 26px; }
+.hero-title,
+.about-title-row span,
+.location-title {
+  text-shadow:
+    0 0 2px var(--ps-cream),
+    0 2px 0 rgba(247, 241, 225, 0.82),
+    0 0 28px rgba(247, 241, 225, 0.92);
+}
 .hero-sub { font-size: clamp(1.05rem, 2vw, 1.3rem); max-width: 520px; color: var(--ps-charcoal-soft); margin-bottom: 34px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 16px; }
 .hero-actions .btn-outline { color: var(--ps-ink); border-color: rgba(32,30,27,0.35); }
@@ -355,6 +363,8 @@ button:focus-visible,
 .location {
   isolation: isolate;
   overflow: hidden;
+  z-index: 20;
+  background: var(--ps-cream);
 }
 .location::before {
   content: "";
@@ -362,7 +372,7 @@ button:focus-visible,
   inset: 0;
   z-index: 6;
   background:
-    linear-gradient(90deg, rgba(247, 241, 225, 0.98) 0%, rgba(247, 241, 225, 0.96) 50%, rgba(255, 250, 238, 0.92) 100%),
+    linear-gradient(90deg, rgba(247, 241, 225, 1) 0%, rgba(247, 241, 225, 0.99) 62%, rgba(255, 250, 238, 0.98) 100%),
     radial-gradient(circle at 12% 25%, rgba(244, 180, 0, 0.24), transparent 34%);
 }
 .location-inner {

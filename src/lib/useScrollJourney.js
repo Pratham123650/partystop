@@ -22,7 +22,7 @@ export default function useScrollJourney(containerRef, onSceneVisibilityChange) 
       scrub: 0.6,
       onUpdate: (self) => {
         journey.progress = self.progress;
-        const nextSceneVisible = self.progress < 0.9;
+        const nextSceneVisible = self.progress < 0.84;
         if (nextSceneVisible !== sceneVisible) {
           sceneVisible = nextSceneVisible;
           onSceneVisibilityChange?.(nextSceneVisible);
