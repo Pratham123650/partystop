@@ -15,10 +15,21 @@ export default function CustomCursor() {
   useEffect(() => {
     if (!enabled) return;
 
+    let frameId = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+
     const move = (e) => {
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
-      }
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+      if (frameId) return;
+
+      frameId = window.requestAnimationFrame(() => {
+        if (dotRef.current) {
+          dotRef.current.style.transform = `translate(${pointerX}px, ${pointerY}px)`;
+        }
+        frameId = 0;
+      });
     };
 
     const over = (e) => {
@@ -38,6 +49,7 @@ export default function CustomCursor() {
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseover", over);
     return () => {
+      if (frameId) window.cancelAnimationFrame(frameId);
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseover", over);
     };

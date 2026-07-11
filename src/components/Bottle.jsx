@@ -23,7 +23,7 @@ const PROFILE = [
 
 function useLatheGeometry() {
   return useMemo(() => {
-    const geo = new THREE.LatheGeometry(PROFILE, 48);
+    const geo = new THREE.LatheGeometry(PROFILE, 40);
     geo.computeVertexNormals();
     return geo;
   }, []);
@@ -38,8 +38,8 @@ function useLabelTexture(text) {
 
   if (!textureRef.current) {
     const c = canvasRef.current;
-    c.width = 1024;
-    c.height = 640;
+    c.width = 768;
+    c.height = 480;
     textureRef.current = new THREE.CanvasTexture(c);
     textureRef.current.colorSpace = THREE.SRGBColorSpace;
   }
@@ -50,46 +50,46 @@ function useLabelTexture(text) {
     ctx.clearRect(0, 0, c.width, c.height);
 
     // cream label background
-    ctx.fillStyle = "#f7f1e1";
+    ctx.fillStyle = "#f7f0dd";
     ctx.fillRect(0, 0, c.width, c.height);
 
     // charcoal border
-    ctx.strokeStyle = "#201e1b";
-    ctx.lineWidth = 14;
-    ctx.strokeRect(24, 24, c.width - 48, c.height - 48);
+    ctx.strokeStyle = "#242424";
+    ctx.lineWidth = 11;
+    ctx.strokeRect(18, 18, c.width - 36, c.height - 36);
 
     // blue directional arrows, left + right
-    ctx.fillStyle = "#1d4e89";
+    ctx.fillStyle = "#2454a6";
     const arrow = (x, dir) => {
       ctx.beginPath();
-      ctx.moveTo(x, 120);
-      ctx.lineTo(x + dir * 70, 160);
-      ctx.lineTo(x, 200);
+      ctx.moveTo(x, 90);
+      ctx.lineTo(x + dir * 52, 120);
+      ctx.lineTo(x, 150);
       ctx.closePath();
       ctx.fill();
     };
-    arrow(110, 1);
-    arrow(c.width - 110, -1);
+    arrow(82, 1);
+    arrow(c.width - 82, -1);
 
     // PARTY (blue)
     ctx.textAlign = "center";
-    ctx.fillStyle = "#1d4e89";
-    ctx.font = "700 130px 'Space Grotesk', sans-serif";
-    ctx.fillText("PARTY", c.width / 2, 250);
+    ctx.fillStyle = "#2454a6";
+    ctx.font = "700 98px 'Space Grotesk', sans-serif";
+    ctx.fillText("PARTY", c.width / 2, 188);
 
     // STOP (red, bold)
-    ctx.fillStyle = "#d62828";
-    ctx.font = "900 190px Arial, sans-serif";
-    ctx.fillText("STOP", c.width / 2, 440);
+    ctx.fillStyle = "#c92d2d";
+    ctx.font = "900 142px Arial, sans-serif";
+    ctx.fillText("STOP", c.width / 2, 330);
 
     // small yellow rule
-    ctx.fillStyle = "#f4b400";
-    ctx.fillRect(c.width / 2 - 160, 470, 320, 10);
+    ctx.fillStyle = "#f5c542";
+    ctx.fillRect(c.width / 2 - 120, 352, 240, 8);
 
     // dynamic sub-label (category text)
-    ctx.fillStyle = "#201e1b";
-    ctx.font = "700 54px 'JetBrains Mono', monospace";
-    ctx.fillText(text.toUpperCase(), c.width / 2, 560);
+    ctx.fillStyle = "#242424";
+    ctx.font = "700 38px 'JetBrains Mono', monospace";
+    ctx.fillText(text.toUpperCase(), c.width / 2, 420);
 
     textureRef.current.needsUpdate = true;
   }, [text]);
@@ -204,23 +204,23 @@ export default function Bottle({ scale = 1 }) {
         {/* Glass body */}
         <mesh ref={bodyRef} geometry={geometry} castShadow receiveShadow>
           <meshPhysicalMaterial
-            color={"#2f6b4f"}
-            transmission={0.88}
-            thickness={1.1}
-            roughness={0.08}
+            color={"#8a5a2f"}
+            transmission={0.76}
+            thickness={1.25}
+            roughness={0.12}
             metalness={0}
             ior={1.45}
-            clearcoat={0.6}
-            clearcoatRoughness={0.15}
-            attenuationColor={"#2f6b4f"}
-            attenuationDistance={1.2}
-            envMapIntensity={1.4}
+            clearcoat={0.9}
+            clearcoatRoughness={0.1}
+            attenuationColor={"#d99a45"}
+            attenuationDistance={1.65}
+            envMapIntensity={1.85}
           />
         </mesh>
 
         {/* Label wrap */}
         <mesh position={[0, 1.05, 0]} rotation={[0, Math.PI * 0.15, 0]}>
-          <cylinderGeometry args={[0.585, 0.6, 1.05, 48, 1, true, 0, Math.PI * 1.35]} />
+          <cylinderGeometry args={[0.585, 0.6, 1.05, 40, 1, true, 0, Math.PI * 1.35]} />
           <meshStandardMaterial
             map={labelTexture}
             roughness={0.55}
@@ -231,12 +231,12 @@ export default function Bottle({ scale = 1 }) {
 
         {/* Cap */}
         <mesh ref={capRef} position={[0, 3.5, 0]}>
-          <cylinderGeometry args={[0.16, 0.19, 0.32, 24]} />
-          <meshStandardMaterial color={"#1d4e89"} roughness={0.35} metalness={0.4} />
+          <cylinderGeometry args={[0.16, 0.19, 0.32, 20]} />
+          <meshStandardMaterial color={"#2454a6"} roughness={0.3} metalness={0.48} />
         </mesh>
         <mesh position={[0, 3.7, 0]}>
-          <sphereGeometry args={[0.05, 16, 16]} />
-          <meshStandardMaterial color={"#f4b400"} roughness={0.3} metalness={0.5} />
+          <sphereGeometry args={[0.05, 12, 12]} />
+          <meshStandardMaterial color={"#f5c542"} roughness={0.28} metalness={0.5} />
         </mesh>
       </group>
     </group>

@@ -22,8 +22,7 @@ import CustomCursor from "./components/CustomCursor";
 
 export default function App() {
   const journeyRef = useRef(null);
-  const [sceneVisible, setSceneVisible] = useState(true);
-  useScrollJourney(journeyRef, setSceneVisible);
+  useScrollJourney(journeyRef);
 
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +46,7 @@ export default function App() {
       <CustomCursor />
       <Nav />
 
-      <Scene3D active={sceneVisible} className="scene-fixed" />
+      <Scene3D className="scene-fixed" />
 
       <main ref={journeyRef} className="journey">
         <Hero />
