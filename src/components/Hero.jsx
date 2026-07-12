@@ -1,62 +1,48 @@
 import { motion } from "framer-motion";
 
+const directions = "https://www.google.com/maps/search/?api=1&query=7235+Allen+Rd+Allen+Park+MI+48101";
+
 export default function Hero() {
   return (
     <section id="home" className="section hero">
+      <div className="hero-light" aria-hidden="true" />
       <div className="section-inner hero-inner">
-        <motion.span
-          className="eyebrow front-bottle hero-eyebrow"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.9, duration: 0.6 }}
-        >
-          Allen Park, Michigan
-        </motion.span>
+        <div className="hero-copy front-bottle">
+          <motion.p className="eyebrow hero-eyebrow" {...reveal(0.08)}>
+            Allen Park, Michigan
+          </motion.p>
+          <motion.h1 className="hero-title" {...reveal(0.16)}>
+            Your first stop<br />for the occasion.
+          </motion.h1>
+          <motion.p className="hero-sub" {...reveal(0.26)}>
+            A neighborhood destination for beer, wine, spirits, cold drinks, snacks, and everyday essentials.
+          </motion.p>
+          <motion.div className="hero-actions" {...reveal(0.34)}>
+            <a className="btn btn-primary" href={directions} target="_blank" rel="noreferrer">
+              Get directions <span aria-hidden="true">↗</span>
+            </a>
+            <a className="text-button" href="tel:+13139287580">
+              Call the store <span aria-hidden="true">→</span>
+            </a>
+          </motion.div>
+        </div>
 
-        <motion.h1
-          className="hero-title front-bottle"
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.0, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        >
-          Your First Stop
-          <br />
-          for the Party.
-        </motion.h1>
-
-        <motion.p
-          className="hero-sub front-bottle"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.2, duration: 0.6 }}
-        >
-          Cold drinks, great selection, snacks, and everything you need to keep
-          the party going.
-        </motion.p>
-
-        <motion.div
-          className="hero-actions front-bottle"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.35, duration: 0.6 }}
-        >
-          <a
-            className="btn btn-primary"
-            href="https://www.google.com/maps/search/?api=1&query=7235+Allen+Rd+Allen+Park+MI+48101"
-            target="_blank" rel="noreferrer"
-          >
-            Get Directions <span className="btn-arrow">→</span>
-          </a>
-          <a className="btn btn-outline" href="tel:+13139287580">
-            Call Party Stop
-          </a>
-        </motion.div>
+        <div className="hero-product-space" aria-hidden="true">
+          <span className="bottle-caption front-bottle">Party Stop · House bottle</span>
+        </div>
       </div>
 
-      <div className="hero-scroll-cue front-bottle" aria-hidden="true">
-        <span>Scroll</span>
-        <div className="hero-scroll-line" />
-      </div>
+      <motion.div className="hero-footnote front-bottle" {...reveal(0.46)}>
+        <span>7235 Allen Rd</span><i /> <span>Allen Park, MI 48101</span>
+      </motion.div>
     </section>
   );
+}
+
+function reveal(delay) {
+  return {
+    initial: { opacity: 0, y: 18 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay: 0.9 + delay, duration: 0.85, ease: [0.16, 1, 0.3, 1] },
+  };
 }
