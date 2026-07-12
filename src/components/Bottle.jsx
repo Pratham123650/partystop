@@ -82,7 +82,7 @@ export default function Bottle() {
   const glassGeometry = useMemo(() => new THREE.LatheGeometry(GLASS_PROFILE, 72), []);
   const liquidGeometry = useMemo(() => new THREE.LatheGeometry(LIQUID_PROFILE, 64), []);
   const labelTexture = useMemo(createLabelTexture, []);
-  const pose = useRef({ x: 1.3, y: -0.1, z: 0, ry: -0.22, rz: 0, scale: 1 });
+  const pose = useRef({ x: 1.36, y: -0.12, z: 0, ry: 0, rz: 0, scale: 1.02 });
 
   useEffect(() => () => {
     glassGeometry.dispose();
@@ -117,7 +117,7 @@ export default function Bottle() {
           <meshPhysicalMaterial color="#554332" transparent opacity={0.7} transmission={0.38} thickness={0.46} roughness={0.16} ior={1.47} clearcoat={0.9} clearcoatRoughness={0.12} attenuationColor="#aa7648" attenuationDistance={2.5} envMapIntensity={1.18} side={THREE.FrontSide} />
         </mesh>
 
-        <mesh position={[0, 1.56, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <mesh position={[0, 1.56, 0]} rotation={[0, Math.PI, 0]}>
           <cylinderGeometry args={[0.708, 0.708, 1.2, 72, 1, true]} />
           <meshStandardMaterial map={labelTexture} roughness={0.68} metalness={0} />
         </mesh>
@@ -151,7 +151,7 @@ function getPose(progress, mobile) {
       x: THREE.MathUtils.lerp(0, 1.52, reveal),
       y: THREE.MathUtils.lerp(-1.42, 0.16, reveal),
       z: 0,
-      ry: THREE.MathUtils.lerp(-0.06, 0.22, reveal),
+      ry: THREE.MathUtils.lerp(0, 0.22, reveal),
       rz: 0,
       scale: THREE.MathUtils.lerp(0.79, 0.38, reveal),
     };
@@ -164,7 +164,7 @@ function getPose(progress, mobile) {
     x: point.x,
     y: point.y,
     z: point.z,
-    ry: -0.06 + Math.PI * 2 * eased,
+    ry: Math.PI * 2 * eased,
     rz: Math.sin(progress * Math.PI * 2) * 0.035,
     scale: 1.02 - 0.46 * eased + 0.05 * settle,
   };
