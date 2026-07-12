@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { clampMap, journey } from "../lib/journeyStore";
+import { journey } from "../lib/journeyStore";
 
 const GLASS_PROFILE = [
   [0, 0], [0.58, 0], [0.66, 0.05], [0.69, 0.16], [0.7, 0.34],
@@ -13,6 +13,16 @@ const LIQUID_PROFILE = [
   [0, 0.13], [0.58, 0.13], [0.62, 0.22], [0.64, 0.38], [0.64, 2.18],
   [0.61, 2.34], [0.52, 2.5], [0.36, 2.64], [0.23, 2.72], [0, 2.72],
 ].map(([x, y]) => new THREE.Vector2(x, y));
+
+const BOTTLE_PATH = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(1.36, -0.12, 0),
+  new THREE.Vector3(1.26, -0.08, 0),
+  new THREE.Vector3(0.48, 0, 0),
+  new THREE.Vector3(-0.55, 0.03, 0),
+  new THREE.Vector3(-0.88, -0.05, 0),
+  new THREE.Vector3(0.12, -0.17, 0),
+  new THREE.Vector3(-1.32, -0.08, 0.05),
+], false, "catmullrom", 0.55);
 
 function createLabelTexture() {
   const canvas = document.createElement("canvas");
@@ -86,7 +96,7 @@ export default function Bottle() {
     const mobile = state.size.width < 760;
     const target = journey.reducedMotion ? getPose(0, mobile) : getPose(p, mobile);
 
-    const speed = journey.reducedMotion ? 1 : 1 - Math.exp(-delta * 4.8);
+    const speed = journey.reducedMotion ? 1 : 1 - Math.exp(-delta * 6.6);
     const current = pose.current;
     Object.keys(current).forEach((key) => { current[key] += (target[key] - current[key]) * speed; });
     bottle.current.position.set(current.x, current.y, current.z);
@@ -136,12 +146,31 @@ export default function Bottle() {
 
 function getPose(progress, mobile) {
   if (mobile) {
-    if (progress <= 0.14) return { x: 0, y: -1.42, z: 0, ry: -0.06, rz: 0, scale: 0.79 };
-    return { x: 1.52, y: 0.16, z: 0, ry: 0.08, rz: 0, scale: 0.38 };
+    const reveal = smootherstep(Math.min(1, progress / 0.16));
+    return {
+      x: THREE.MathUtils.lerp(0, 1.52, reveal),
+      y: THREE.MathUtils.lerp(-1.42, 0.16, reveal),
+      z: 0,
+      ry: THREE.MathUtils.lerp(-0.06, 0.22, reveal),
+      rz: 0,
+      scale: THREE.MathUtils.lerp(0.79, 0.38, reveal),
+    };
   }
-  if (progress <= 0.2) return { x: 1.36, y: -0.12, z: 0, ry: clampMap(progress, 0, 0.2, -0.08, 0.18), rz: 0, scale: 1.02 };
-  if (progress <= 0.43) return { x: clampMap(progress, 0.2, 0.43, 1.36, 0.28), y: -0.02, z: 0, ry: clampMap(progress, 0.2, 0.43, 0.18, 0.58), rz: 0.035, scale: 0.86 };
-  if (progress <= 0.63) return { x: clampMap(progress, 0.43, 0.63, 0.28, -1.18), y: 0.02, z: 0, ry: clampMap(progress, 0.43, 0.63, 0.58, 0.88), rz: -0.04, scale: 0.67 };
-  if (progress <= 0.84) return { x: 1.42, y: -0.18, z: 0, ry: clampMap(progress, 0.63, 0.84, 0.88, 1.02), rz: 0.02, scale: 0.55 };
-  return { x: -1.48, y: -0.08, z: 0.05, ry: clampMap(progress, 0.84, 1, 1.02, 0.02), rz: 0, scale: 0.61 };
+
+  const eased = smootherstep(progress);
+  const point = BOTTLE_PATH.getPoint(eased);
+  const settle = smootherstep(Math.max(0, (progress - 0.82) / 0.18));
+  return {
+    x: point.x,
+    y: point.y,
+    z: point.z,
+    ry: -0.06 + Math.PI * 2 * eased,
+    rz: Math.sin(progress * Math.PI * 2) * 0.035,
+    scale: 1.02 - 0.46 * eased + 0.05 * settle,
+  };
+}
+
+function smootherstep(value) {
+  const t = Math.min(1, Math.max(0, value));
+  return t * t * t * (t * (t * 6 - 15) + 10);
 }
