@@ -1,67 +1,60 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
-const PLACEHOLDERS = [
-  { id: 1, label: "Storefront", tall: false },
-  { id: 2, label: "Beer Aisle", tall: true },
-  { id: 3, label: "Wine Wall", tall: false },
-  { id: 4, label: "Snack Corner", tall: false },
-  { id: 5, label: "Checkout", tall: true },
-  { id: 6, label: "Lotto Counter", tall: false },
+const GALLERY = [
+  { id: 1, title: "The storefront", image: "./images/storefront-placeholder.webp", position: "center 48%", wide: true },
+  { id: 2, title: "Cold drinks", image: "./images/interior-placeholder.webp", position: "left center" },
+  { id: 3, title: "Wine & spirits", image: "./images/interior-placeholder.webp", position: "center center" },
+  { id: 4, title: "Snacks & extras", image: "./images/interior-placeholder.webp", position: "right center" },
 ];
 
 export default function Gallery() {
   const [active, setActive] = useState(null);
+  const closeRef = useRef(null);
+
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (event) => event.key === "Escape" && setActive(null);
+    window.addEventListener("keydown", onKey);
+    closeRef.current?.focus();
+    return () => window.removeEventListener("keydown", onKey);
+  }, [active]);
 
   return (
     <section id="gallery" className="section gallery">
       <div className="section-inner">
-        <span className="eyebrow">Gallery</span>
-        <h2 className="gallery-title">Inside Party Stop</h2>
-        <p className="gallery-note">Real store photos coming soon — placeholders shown below.</p>
-      </div>
+        <div className="section-heading section-heading-light">
+          <div><span className="eyebrow">Gallery</span><h2>Inside Party Stop</h2></div>
+          <p>A quiet look at the selection and store experience. Editorial placeholders are shown until real Party Stop photography is available.</p>
+        </div>
 
-      <div className="gallery-grid section-inner">
-        {PLACEHOLDERS.map((p, i) => (
-          <motion.button
-            key={p.id}
-            className={`gallery-item ${p.tall ? "gallery-item-tall" : ""}`}
-            onClick={() => setActive(p)}
-            data-cursor="View"
-            initial={{ opacity: 0, clipPath: "inset(12% round 4px)" }}
-            whileInView={{ opacity: 1, clipPath: "inset(0% round 4px)" }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.55, delay: i * 0.05 }}
-            whileHover={{ scale: 1.02 }}
-            aria-label={`View ${p.label} photo`}
-          >
-            <span className="gallery-item-label">{p.label}</span>
-            <span className="gallery-item-hint">View</span>
-          </motion.button>
-        ))}
+        <div className="gallery-grid">
+          {GALLERY.map((item, index) => (
+            <motion.button
+              key={item.id}
+              className={`gallery-item ${item.wide ? "gallery-item-wide" : ""}`}
+              onClick={() => setActive(item)}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-70px" }}
+              transition={{ duration: 0.65, delay: index * 0.06 }}
+              aria-label={`View ${item.title} placeholder`}
+            >
+              <img src={item.image} alt="" loading="lazy" style={{ objectPosition: item.position }} />
+              <span>{item.title}</span>
+              <i aria-hidden="true">↗</i>
+            </motion.button>
+          ))}
+        </div>
       </div>
 
       <AnimatePresence>
         {active && (
-          <motion.div
-            className="lightbox"
-            role="dialog"
-            aria-modal="true"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setActive(null)}
-          >
-            <motion.div
-              className="lightbox-frame"
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <span>{active.label}</span>
-              <p>Photo placeholder — real image to be added.</p>
-              <button className="btn btn-outline" onClick={() => setActive(null)}>Close</button>
+          <motion.div className="lightbox" role="dialog" aria-modal="true" aria-label={`${active.title} image preview`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActive(null)}>
+            <motion.div className="lightbox-frame" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} onClick={(event) => event.stopPropagation()}>
+              <img src={active.image} alt={`${active.title} editorial placeholder`} style={{ objectPosition: active.position }} />
+              <div><span>{active.title}</span><small>Editorial placeholder</small></div>
+              <button ref={closeRef} onClick={() => setActive(null)} aria-label="Close image preview">×</button>
             </motion.div>
           </motion.div>
         )}
