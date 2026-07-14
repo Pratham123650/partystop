@@ -1,61 +1,135 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import gsap from 'gsap';
+import { usePrefersReducedMotion } from '../lib/hooks.js';
+import { withBasePath } from '../lib/assetPath.js';
 
-const GALLERY = [
-  { id: 1, title: "The storefront", image: "./images/storefront-placeholder.webp", position: "center 48%", wide: true },
-  { id: 2, title: "Cold drinks", image: "./images/interior-placeholder.webp", position: "left center" },
-  { id: 3, title: "Wine & spirits", image: "./images/interior-placeholder.webp", position: "center center" },
-  { id: 4, title: "Snacks & extras", image: "./images/interior-placeholder.webp", position: "right center" },
+/**
+ * REPLACEABLE IMAGES: drop real store photos at
+ * public/gallery/1.jpg … public/gallery/5.jpg. Slots without a photo
+ * show an elegant labeled panel — never a broken image.
+ */
+const SLOTS = [
+  { src: withBasePath('/gallery/1.jpg'), alt: 'Inside Party Stop — the main aisle' },
+  { src: withBasePath('/gallery/2.jpg'), alt: 'Inside Party Stop — the wine selection' },
+  { src: withBasePath('/gallery/3.jpg'), alt: 'Inside Party Stop — coolers of cold drinks' },
+  { src: withBasePath('/gallery/4.jpg'), alt: 'Inside Party Stop — spirits shelf' },
+  { src: withBasePath('/gallery/5.jpg'), alt: 'Inside Party Stop — snacks and essentials' },
 ];
 
 export default function Gallery() {
-  const [active, setActive] = useState(null);
-  const closeRef = useRef(null);
+  const root = useRef(null);
+  const cursorRef = useRef(null);
+  const [loadedMap, setLoadedMap] = useState({});
+  const [lightbox, setLightbox] = useState(null);
+  const [cursorOn, setCursorOn] = useState(false);
+  const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
-    if (!active) return;
-    const onKey = (event) => event.key === "Escape" && setActive(null);
-    window.addEventListener("keydown", onKey);
-    closeRef.current?.focus();
-    return () => window.removeEventListener("keydown", onKey);
-  }, [active]);
+    if (reduced) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.gitem',
+        { clipPath: 'inset(12% 0 12% 0 round 16px)', opacity: 0, y: 26 },
+        {
+          clipPath: 'inset(0% 0 0% 0 round 16px)',
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          stagger: 0.08,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: root.current, start: 'top 72%' },
+        }
+      );
+    }, root);
+    return () => ctx.revert();
+  }, [reduced]);
+
+  // "VIEW" cursor only over gallery images (desktop pointer)
+  useEffect(() => {
+    if (!cursorOn) return;
+    const move = (e) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+      }
+    };
+    window.addEventListener('mousemove', move, { passive: true });
+    return () => window.removeEventListener('mousemove', move);
+  }, [cursorOn]);
+
+  const markLoaded = (i) => setLoadedMap((m) => ({ ...m, [i]: true }));
 
   return (
-    <section id="gallery" className="section gallery">
-      <div className="section-inner">
-        <div className="section-heading section-heading-light">
-          <div><span className="eyebrow">Gallery</span><h2>Inside Party Stop</h2></div>
-          <p>A quiet look at the selection and store experience. Editorial placeholders are shown until real Party Stop photography is available.</p>
-        </div>
+    <section className="gallery" id="gallery" ref={root}>
+      <div className="container">
+        <p className="label">Inside Party Stop</p>
+        <h2 className="headline" style={{ marginTop: 18, fontSize: 'clamp(34px,4.6vw,60px)' }}>
+          Take a look <em>around.</em>
+        </h2>
 
-        <div className="gallery-grid">
-          {GALLERY.map((item, index) => (
-            <motion.button
-              key={item.id}
-              className={`gallery-item ${item.wide ? "gallery-item-wide" : ""}`}
-              onClick={() => setActive(item)}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-70px" }}
-              transition={{ duration: 0.65, delay: index * 0.06 }}
-              aria-label={`View ${item.title} placeholder`}
+        <div className="gallery__grid">
+          {SLOTS.map((s, i) => (
+            <button
+              key={s.src}
+              className="gitem"
+              onClick={() => loadedMap[i] && setLightbox(s)}
+              onMouseEnter={() => loadedMap[i] && setCursorOn(true)}
+              onMouseLeave={() => setCursorOn(false)}
+              aria-label={loadedMap[i] ? `Open photo: ${s.alt}` : 'Photo coming soon'}
+              style={!loadedMap[i] ? { cursor: 'default' } : undefined}
             >
-              <img src={item.image} alt="" loading="lazy" style={{ objectPosition: item.position }} />
-              <span>{item.title}</span>
-              <i aria-hidden="true">↗</i>
-            </motion.button>
+              <img
+                src={s.src}
+                alt={s.alt}
+                loading="lazy"
+                style={loadedMap[i] ? undefined : { display: 'none' }}
+                onLoad={() => markLoaded(i)}
+                onError={(e) => (e.currentTarget.style.display = 'none')}
+              />
+              {!loadedMap[i] && (
+                <span className="gitem__ph">
+                  <span>PHOTO COMING SOON</span>
+                </span>
+              )}
+            </button>
           ))}
         </div>
       </div>
 
+      {cursorOn && !lightbox && (
+        <div className="gcursor" ref={cursorRef} aria-hidden="true">
+          VIEW
+        </div>
+      )}
+
       <AnimatePresence>
-        {active && (
-          <motion.div className="lightbox" role="dialog" aria-modal="true" aria-label={`${active.title} image preview`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActive(null)}>
-            <motion.div className="lightbox-frame" initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} onClick={(event) => event.stopPropagation()}>
-              <img src={active.image} alt={`${active.title} editorial placeholder`} style={{ objectPosition: active.position }} />
-              <div><span>{active.title}</span><small>Editorial placeholder</small></div>
-              <button ref={closeRef} onClick={() => setActive(null)} aria-label="Close image preview">×</button>
-            </motion.div>
+        {lightbox && (
+          <motion.div
+            className="lightbox"
+            role="dialog"
+            aria-modal="true"
+            aria-label={lightbox.alt}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setLightbox(null)}
+          >
+            <motion.img
+              src={lightbox.src}
+              alt={lightbox.alt}
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            />
+            <button
+              className="lightbox__close"
+              onClick={() => setLightbox(null)}
+              aria-label="Close photo"
+            >
+              ×
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

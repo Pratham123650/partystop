@@ -1,10 +1,20 @@
-const directions = "https://www.google.com/maps/search/?api=1&query=7235+Allen+Rd+Allen+Park+MI+48101";
+import { STORE } from '../lib/constants.js';
 
 export default function MobileActionBar() {
   return (
-    <div className="mobile-action-bar" aria-label="Quick store actions">
-      <a href="tel:+13139287580"><span>Call</span><b>313 928 7580</b></a>
-      <a href={directions} target="_blank" rel="noreferrer"><span>Visit</span><b>Directions ↗</b></a>
+    <div className="mobilebar" role="navigation" aria-label="Quick actions">
+      <a href={STORE.phoneHref}>
+        <span className="dot" aria-hidden="true">
+          ●
+        </span>
+        CALL
+      </a>
+      <a href={STORE.directionsHref} target="_blank" rel="noreferrer">
+        <span className="dot" aria-hidden="true">
+          →
+        </span>
+        DIRECTIONS
+      </a>
     </div>
   );
 }

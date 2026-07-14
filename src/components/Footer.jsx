@@ -1,14 +1,46 @@
-const LINKS = [["Home", "#home"], ["About", "#about"], ["Selection", "#selection"], ["Gallery", "#gallery"], ["Visit", "#visit"]];
+import Wordmark from './Wordmark.jsx';
+import { STORE } from '../lib/constants.js';
 
 export default function Footer() {
   return (
     <footer className="footer">
-      <div className="section-inner footer-inner">
-        <div className="footer-brand"><span>Party</span> Stop<p>Your first stop for the occasion.</p></div>
-        <div className="footer-address"><span className="eyebrow">Visit us</span><p>7235 Allen Rd<br />Allen Park, MI 48101</p><a href="tel:+13139287580">(313) 928-7580</a></div>
-        <nav className="footer-links" aria-label="Footer navigation">{LINKS.map(([label, href]) => <a href={href} key={href}>{label}</a>)}</nav>
+      <div className="container">
+        <div className="footer__inner">
+          <div>
+            <Wordmark light />
+            <address style={{ marginTop: 16 }}>
+              {STORE.address1}
+              <br />
+              {STORE.address2}
+              <br />
+              <a href={STORE.phoneHref}>{STORE.phoneDisplay}</a>
+            </address>
+          </div>
+          <nav aria-label="Footer">
+            <ul className="footer__links">
+              <li>
+                <a href="#main">Home</a>
+              </li>
+              <li>
+                <a href="#selection">Selection</a>
+              </li>
+              <li>
+                <a href="#essentials">Essentials</a>
+              </li>
+              <li>
+                <a href="#gallery">Gallery</a>
+              </li>
+              <li>
+                <a href="#visit">Visit</a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div className="footer__legal">
+          <span>© {new Date().getFullYear()} Party Stop · Allen Park, MI</span>
+          <span>Must be 21+ to purchase alcohol. Please drink responsibly.</span>
+        </div>
       </div>
-      <div className="footer-bottom section-inner"><span>© {new Date().getFullYear()} Party Stop</span><span>Allen Park, Michigan</span><a href="#home">Back to top ↑</a></div>
     </footer>
   );
 }

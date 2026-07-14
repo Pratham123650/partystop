@@ -1,49 +1,114 @@
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import Wordmark from './Wordmark.jsx';
+import { STORE } from '../lib/constants.js';
 
-const directions = "https://www.google.com/maps/search/?api=1&query=7235+Allen+Rd+Allen+Park+MI+48101";
 const LINKS = [
-  ["Home", "#home"], ["About", "#about"], ["Selection", "#selection"], ["Gallery", "#gallery"], ["Visit", "#visit"],
+  { href: '#main', label: 'Home' },
+  { href: '#selection', label: 'Selection' },
+  { href: '#essentials', label: 'Essentials' },
+  { href: '#gallery', label: 'Gallery' },
+  { href: '#visit', label: 'Visit' },
 ];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
+    document.body.classList.toggle('no-scroll', open);
+    return () => document.body.classList.remove('no-scroll');
+  }, [open]);
 
   return (
     <>
-      <header className={`nav ${scrolled ? "nav-scrolled" : ""}`}>
-        <div className="nav-inner">
-          <a href="#home" className="nav-logo" aria-label="Party Stop home"><span className="logo-party">PARTY</span><span className="logo-stop">STOP</span><i aria-hidden="true">→</i></a>
-          <nav className="nav-links" aria-label="Primary navigation">
-            {LINKS.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
+      <header className={`nav ${scrolled ? 'nav--scrolled' : ''}`}>
+        <div className="nav__inner">
+          <Wordmark />
+          <nav aria-label="Primary">
+            <ul className="nav__links">
+              {LINKS.map((l) => (
+                <li key={l.href}>
+                  <a className="nav__link" href={l.href}>
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </nav>
-          <a href={directions} target="_blank" rel="noreferrer" className="btn btn-primary nav-cta">Get directions <span aria-hidden="true">↗</span></a>
-          <button className="nav-burger" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(true)}><span /><span /></button>
+          <a
+            className="nav__cta"
+            href={STORE.directionsHref}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Get Directions
+          </a>
+          <button
+            className={`nav__burger ${open ? 'nav__burger--open' : ''}`}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+          >
+            <span />
+            <span />
+          </button>
         </div>
       </header>
 
       <AnimatePresence>
-        {menuOpen && (
-          <motion.div className="mobile-menu" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>
-            <div className="mobile-menu-head"><span>PARTY <b>STOP</b></span><button aria-label="Close menu" onClick={() => setMenuOpen(false)}>×</button></div>
-            <nav aria-label="Mobile navigation">
-              {LINKS.map(([label, href], index) => (
-                <motion.a key={href} href={href} onClick={() => setMenuOpen(false)} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08 + index * 0.04 }}>{label}<span>↘</span></motion.a>
+        {open && (
+          <motion.div
+            className="mnav"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <nav aria-label="Mobile">
+              {LINKS.map((l, i) => (
+                <motion.div
+                  key={l.href}
+                  initial={{ opacity: 0, y: 18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.08 + i * 0.05, duration: 0.4 }}
+                >
+                  <a
+                    className="mnav__link"
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                  >
+                    <small>0{i + 1}</small>
+                    {l.label}
+                  </a>
+                </motion.div>
               ))}
             </nav>
-            <div className="mobile-menu-actions"><a className="btn btn-primary" href={directions} target="_blank" rel="noreferrer">Get directions</a><a className="btn btn-secondary" href="tel:+13139287580">Call the store</a></div>
+            <motion.div
+              className="mnav__actions"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <a className="btn btn--light" href={STORE.phoneHref}>
+                Call
+              </a>
+              <a
+                className="btn btn--ghost-light"
+                href={STORE.directionsHref}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Directions <span className="btn__arrow">→</span>
+              </a>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
