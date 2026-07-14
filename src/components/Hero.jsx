@@ -1,12 +1,18 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { usePrefersReducedMotion, useIsMobile } from '../lib/hooks.js';
+import { usePrefersReducedMotion, useMediaQuery } from '../lib/hooks.js';
 import { STORE } from '../lib/constants.js';
 import StaticBottle from './StaticBottle.jsx';
 
 const BottleScene = lazy(() => import('../three/BottleScene.jsx'));
 
+/**
+ * Motion tiers:
+ *  - desktop  (>=1024px): full pinned bottle-to-amber transition, pointer tilt
+ *  - tablet   (768-1023): shorter pin, no pointer effects
+ *  - mobile   (<768px): no pinning - entrance rotation + light scroll turn
+ */
 export default function Hero({ ready }) {
   const wrapRef = useRef(null);
   const stickyRef = useRef(null);
@@ -14,14 +20,15 @@ export default function Hero({ ready }) {
   const bottleRef = useRef(null);
   const veilRef = useRef(null);
   const progressRef = useRef(0);
+  const bottleApi = useRef(null);
   const reduced = usePrefersReducedMotion();
-  const isMobile = useIsMobile();
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const isTablet = useMediaQuery('(min-width: 768px) and (max-width: 1023px)');
   const pinned = !reduced && !isMobile;
 
   // Entrance once the loader hands off
   useEffect(() => {
-    if (!ready || !copyRef.current) return;
-    if (reduced) return;
+    if (!ready || !copyRef.current || reduced) return;
     const els = copyRef.current.querySelectorAll('[data-rise]');
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -40,7 +47,7 @@ export default function Hero({ ready }) {
     return () => ctx.revert();
   }, [ready, reduced]);
 
-  // Signature scroll transition (desktop): bottle → amber → selection
+  // Signature scroll transition (desktop full / tablet shortened)
   useEffect(() => {
     if (!pinned) return;
     const ctx = gsap.context(() => {
@@ -52,6 +59,7 @@ export default function Hero({ ready }) {
           scrub: 0.7,
           onUpdate: (self) => {
             progressRef.current = self.progress;
+            bottleApi.current?.invalidate();
           },
         },
         defaults: { ease: 'none' },
@@ -72,9 +80,9 @@ export default function Hero({ ready }) {
         .to(veilRef.current, { opacity: 0, duration: 0.22, ease: 'power2.out' }, 0.78);
     }, wrapRef);
     return () => ctx.revert();
-  }, [pinned]);
+  }, [pinned, isTablet]);
 
-  // Mobile / reduced: light 20–30° rotation as the visitor scrolls away
+  // Mobile / reduced motion: gentle 6-10 degree turn while scrolling away
   useEffect(() => {
     if (pinned || reduced) return;
     const st = ScrollTrigger.create({
@@ -84,16 +92,19 @@ export default function Hero({ ready }) {
       scrub: true,
       onUpdate: (self) => {
         progressRef.current = self.progress * 0.22;
+        bottleApi.current?.invalidate();
       },
     });
     return () => st.kill();
   }, [pinned, reduced]);
 
+  const wrapHeight = pinned ? (isTablet ? '180vh' : '260vh') : undefined;
+
   return (
     <section
       className={`hero ${pinned ? '' : 'hero--static'}`}
       ref={wrapRef}
-      style={pinned ? { height: '260vh' } : undefined}
+      style={wrapHeight ? { height: wrapHeight } : undefined}
       aria-label="Welcome to Party Stop"
     >
       <div className="hero__sticky" ref={stickyRef}>
@@ -135,7 +146,8 @@ export default function Hero({ ready }) {
             <Suspense fallback={<StaticBottle />}>
               <BottleScene
                 progressRef={progressRef}
-                interactive={!isMobile && !reduced}
+                apiRef={bottleApi}
+                interactive={!isMobile && !isTablet && !reduced}
                 quality={isMobile ? 'lite' : 'high'}
               />
             </Suspense>

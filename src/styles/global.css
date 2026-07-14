@@ -1805,3 +1805,263 @@ button {
     animation: none;
   }
 }
+
+/* ============================================================
+   MOBILE-FIRST RESPONSIVE REFINEMENT
+   (appended layer — overrides the base rules above)
+   ============================================================ */
+
+/* ---------- Touch targets ---------- */
+.btn {
+  min-height: 48px;
+  box-sizing: border-box;
+  align-items: center;
+}
+.nav__cta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* ---------- Fluid typography ---------- */
+.headline {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+}
+.hero__title {
+  font-size: clamp(2.9rem, 8vw, 6.5rem);
+}
+.lede {
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+}
+
+/* ---------- Hero composition (desktop) ---------- */
+.hero__sticky {
+  background: radial-gradient(
+      90% 80% at 76% 42%,
+      rgba(229, 213, 181, 0.6) 0%,
+      rgba(245, 240, 231, 0) 58%
+    ),
+    var(--ivory);
+}
+.hero__inner {
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+}
+.hero__bottle {
+  height: min(62vh, 560px);
+  width: 100%;
+  max-width: 470px;
+  justify-self: end;
+  align-self: center;
+  position: relative;
+}
+.hero__bottle::before {
+  content: '';
+  position: absolute;
+  inset: 8% 4% 2% 4%;
+  border-radius: 50%;
+  background: radial-gradient(
+    50% 50% at 50% 55%,
+    rgba(229, 213, 181, 0.55) 0%,
+    rgba(200, 138, 45, 0.12) 55%,
+    transparent 75%
+  );
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ---------- Navigation: burger below 900px ---------- */
+.nav__mini-dir {
+  display: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--ivory);
+  font-size: 18px;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+}
+.nav--open {
+  z-index: 960;
+  background: transparent;
+  border-bottom-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+@media (max-width: 899px) {
+  .nav__links,
+  .nav__cta {
+    display: none;
+  }
+  .nav__burger {
+    display: block;
+  }
+  .nav__mini-dir {
+    display: inline-flex;
+    margin-left: auto;
+  }
+}
+
+/* ---------- Overlay menu: warm ivory redesign ---------- */
+.mnav {
+  background: var(--ivory);
+  color: var(--charcoal);
+  padding-top: 96px;
+  justify-content: flex-start;
+  gap: 0;
+  overflow-y: auto;
+}
+.mnav__link {
+  color: var(--charcoal);
+  font-size: clamp(2rem, 8.5vw, 3.2rem);
+  padding: 6px 0;
+  min-height: 48px;
+}
+.mnav__link small {
+  color: var(--amber-deep);
+}
+.mnav__actions {
+  margin-top: 34px;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 380px;
+}
+.mnav__actions .btn {
+  justify-content: center;
+}
+.mnav__info {
+  margin-top: 28px;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(27, 28, 26, 0.6);
+}
+.mnav__info a {
+  color: var(--burgundy);
+  text-decoration: none;
+  font-weight: 600;
+}
+.nav__burger--open span {
+  background: var(--charcoal);
+}
+
+/* ---------- Sticky action bar: hide over footer ---------- */
+.mobilebar {
+  transition: transform 0.4s var(--ease-out);
+}
+.mobilebar--hidden {
+  transform: translateY(110%);
+}
+
+/* ============================================================
+   TABLET (768–1023px): tighter hero, simplified visuals
+   ============================================================ */
+@media (max-width: 1023px) {
+  .hero__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  }
+  .hero__bottle {
+    height: min(52vh, 480px);
+    justify-self: center;
+  }
+}
+
+/* ============================================================
+   MOBILE (<768px): stacked hero, content first, bottle below
+   ============================================================ */
+@media (max-width: 767px) {
+  .hero__inner {
+    grid-template-columns: 1fr;
+    padding-top: 104px;
+    padding-bottom: 24px;
+    gap: 18px;
+    align-content: start;
+  }
+  .hero--static .hero__sticky {
+    height: auto;
+    min-height: 100svh;
+    align-items: stretch;
+  }
+  .hero__bottle {
+    height: clamp(300px, 44svh, 420px);
+    max-width: 320px;
+    margin: 0 auto;
+    justify-self: center;
+  }
+  .hero__sub {
+    margin-top: 18px;
+  }
+  .hero__actions {
+    margin-top: 26px;
+    gap: 12px;
+  }
+
+  .selection__head {
+    margin-bottom: 40px;
+  }
+  .cat-panel {
+    min-height: clamp(160px, 26vh, 240px);
+  }
+  .cat-panel__name {
+    font-size: clamp(26px, 7.5vw, 38px);
+  }
+  .cat-panel__glass {
+    height: 68%;
+    right: 14px;
+  }
+
+  .featured__row {
+    grid-auto-columns: clamp(220px, 68vw, 300px);
+  }
+
+  .inv-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr));
+    gap: 12px;
+  }
+  .inv-search {
+    max-width: 100%;
+  }
+
+  .visit__map {
+    aspect-ratio: 4 / 3;
+  }
+
+  .lottery__copy .headline {
+    font-size: clamp(2.4rem, 10vw, 3.4rem);
+  }
+}
+
+/* ============================================================
+   SMALL MOBILE (<480px): full-width actions, tighter type
+   ============================================================ */
+@media (max-width: 479px) {
+  .hero__title {
+    font-size: clamp(2.2rem, 10.5vw, 3.1rem);
+  }
+  .headline {
+    font-size: clamp(1.9rem, 9vw, 2.6rem);
+  }
+  .hero__actions .btn,
+  .inv-empty__actions .btn,
+  .visit__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .hero__bottle {
+    max-width: 280px;
+    height: clamp(300px, 42svh, 380px);
+  }
+  .pmodal {
+    padding: 12px;
+  }
+  .pmodal__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .footer__links {
+    flex-wrap: wrap;
+    gap: 12px 18px;
+  }
+}
